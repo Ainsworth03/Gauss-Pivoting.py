@@ -1,0 +1,109 @@
+import numpy as np
+import sympy as sp
+
+
+def coefficients_in(nvar, matrix):
+
+    """
+    Fungsi untuk menanpung koefisien dan hasil setiap persamaan pada SPL
+    
+    Parameter : 
+    nvar = banyak variabel ; type : Integer
+    matrix = matrix untuk menanpung variabel ; type : numpy matrix
+    
+    Output :
+    Matriks berisi koefisien dan hasil setiap persamaan pada SPL
+    
+    """
+
+    for i in range(nvar) :
+        for j in range(nvar+1) :
+            if j < nvar  :
+                matrix[i][j] = float(input(( "Masukkan koefisien x" + str(j+1) + " pada persamaan ke " + str(i + 1) + ":  ")))
+            elif j == nvar :
+                matrix[i][j] = float(input(( "Masukkan hasil persamaan ke " + str(i + 1) + ":  ")))
+
+    print("\nMatriks awal :\n", matrix)       
+
+    return matrix
+
+def gausspivot (nvar, matrix) : 
+
+    
+    """
+    Fungsi untuk melakukan algoritma gauss pivot 
+
+    Parameter : 
+    nvar = banyak variabel ; type : Integer
+    matrix = matrix untuk menanpung variabel ; type : numpy matrix
+    
+    Output :
+    Matriks berisi koefisien dan hasil setiap persamaan pada SPL setelah algoritma gausspivot dilakukan
+    
+    """
+
+    temp = np.zeros(nvar+1)
+
+    for i in range(nvar) : 
+        if matrix[i][i] == 0.0 and i < nvar:
+            for k in range(nvar + 1) :
+                temp[k] = matrix[i][k]
+            matrix[i] = matrix[i+1]
+            matrix[i+1] = temp
+            print("\n Matriks tukar baris :\n", matrix)
+        elif matrix[i][i] == 0.0 and i == nvar :
+            for k in range(nvar + 1) :
+                temp[k] = matrix[i][k]
+            matrix[i] = matrix[i-1]
+            matrix[i-1] = temp
+            print("\n Matriks tukar baris :\n", matrix)
+        
+        for j in range(i+1, nvar) :
+            ratio = matrix[j][i] / matrix[i][i] 
+
+            for k in range(nvar+1) : 
+                matrix[j][k] = matrix[j][k] - ratio * matrix[i][k]
+        print("\nIterasi matriks :\n", matrix)
+
+    return matrix
+
+def substitusimundur(nvar, matrix, solutions) :
+
+    """
+    Fungsi untuk melakukan substitusi mundur 
+
+    Parameter : 
+    nvar = banyak variabel ; type : Integer
+    matrix = matrix untuk menanpung variabel ; type : numpy matrix
+    solutions = array untuk menampung solusi ; type : numpy array
+    
+    Output :
+    Array berisi solusi dari SPL
+
+    """
+
+    solutions[nvar-1] = matrix[nvar-1][nvar] / matrix[nvar-1][nvar-1]
+
+    for i in range(nvar-2,-1,-1) :
+        solutions[i] = matrix[i][nvar]
+
+        for j in range(i+1, nvar) :
+            solutions[i] = solutions[i] - matrix[i][j] * solutions[j]
+
+        solutions[i] = solutions[i] / matrix[i][i]
+    
+    return solutions
+
+try :
+    nvar = int(input("Masukkan banyak variabel : "))
+    matrix = np.zeros((nvar, nvar+1))
+    solution = np.zeros(nvar)
+    coefmatrx = coefficients_in(nvar, matrix)
+    gaussmatrx = gausspivot(nvar, coefmatrx)
+    arrhasil = substitusimundur(nvar, gaussmatrx, solution)
+    print("\n\nMaka hasilnya adalah :")
+    for i in range(nvar) : 
+        print("x" + str(i) + "  =  " + str(arrhasil[i]) + "      ")
+
+except ValueError :
+    print("Program Error : Masukkan nilai berupa integer untuk banyak variabel dan float untuk koefisien! ")
